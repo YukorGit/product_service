@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Domain\Category\Enums\CategoryName;
 use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -23,12 +24,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);*/
 
-        $categories = ['Electronics', 'Books', 'Clothing', 'Toys', 'Flowers'];
         $catIds = [];
 
-        foreach ($categories as $cat) {
+        foreach (CategoryName::cases() as $categoryEnum) {
             $catIds[] = DB::table('categories')->insertGetId([
-                'name' => $cat,
+                'name' => $categoryEnum->value,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
