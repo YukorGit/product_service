@@ -1,59 +1,100 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Product Service
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Микросервис для поиска и фильтрации товаров, реализованный на **PHP 8.4** и **Laravel 12** с использованием подходов **DDD (Domain-Driven Design)** и **Clean Architecture**.
 
-## About Laravel
+## Архитектура и Решения
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Проект построен с разделением на слои для удобства поддержки и тестирования:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+*   **`App/Domain`**: Чистая бизнес-логика (Entity, Enums, DTO). Не зависит от фреймворка.
+*   **`App/Infrastructure/Persistence`**: Реализация работы с БД (Eloquent, Query Filters, Mappers).
+*   **`App/Application`**: Сервисный слой (Use Cases).
+*   **`App/Presenters`**: HTTP слой (Controllers, API Resources).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Установка и запуск
 
-## Learning Laravel
+Для запуска требуется установленный **PHP >= 8.4**, **Composer** и **MySQL**.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1.  **Клонирование репозитория:**
+    ```bash
+    git clone <repository-url>
+    cd product-service
+    ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2.  **Установка зависимостей:**
+    ```bash
+    composer install
+    ```
 
-## Laravel Sponsors
+3.  **Настройка окружения:**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4.  **Настройка базы данных:**
+    *   Создайте пустую базу данных в MySQL (например, `product_service`).
+    *   Отредактируйте файл `.env`, указав доступы:
+        ```env
+        DB_CONNECTION=mysql
+        DB_HOST=127.0.0.1
+        DB_PORT=3306
+        DB_DATABASE=product_service
+        DB_USERNAME=root
+        DB_PASSWORD=your_password
+        ```
 
-### Premium Partners
+5.  **Миграции и наполнение данными:**
+    Команда создаст таблицы и наполнит их тестовыми данными (категории + 300 товаров).
+    ```bash
+    php artisan migrate --seed
+    ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+6.  **Генерация документации Swagger:**
+    ```bash
+    php artisan l5-swagger:generate
+    ```
 
-## Contributing
+7.  **Запуск локального сервера:**
+    ```bash
+    php artisan serve
+    ```
+    Приложение будет доступно по адресу: `http://127.0.0.1:8000`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## API Документация
 
-## Code of Conduct
+В проекте настроен **Swagger UI**. После запуска сервера перейдите по адресу:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**[http://127.0.0.1:8000/api/documentation](http://127.0.0.1:8000/api/documentation)**
 
-## Security Vulnerabilities
+**Примеры запросов:**
+*   Получить все товары: `GET /api/products`
+*   Фильтр и сортировка: `GET /api/products?q=Phone&price_from=100&sort=price_asc&in_stock=1`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Тестирование
 
-## License
+### Unit тесты (PHPUnit)
+Написаны тесты для проверки бизнес-логики (Domain Layer). Используются Data Providers.
+```bash
+php artisan test
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### API тесты (Postman)
+Коллекция запросов и настройки окружения находятся в директории tests/Postman/.
+
+Файлы:
+- Коллекция: tests/Postman/product_service_local_test.postman_collection.json
+- Окружение: tests/Postman/product_service_local.postman_environment.json
+
+Коллекция содержит проверки:
+*   Структуры JSON ответа.
+*   Корректности фильтрации и сортировки.
+*   Валидации входных данных.
+
+**Инструкция:**
+1. Импортируйте оба файла в Postman.
+2. В правом верхнем углу Postman выберите окружение **"Laravel Product Service Local"**.
+3. Запустите тесты вручную или через Collection Runner.
+
+
+
