@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Infrastructure\Persistence\Eloquent\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class CategoryModel extends Model
+{
+    protected $table = 'categories';
+
+    protected $fillable = [
+        'name',
+    ];
+
+    /**
+     * Связь с продуктами.
+     */
+    public function products(): HasMany
+    {
+        return $this->hasMany(ProductModel::class, 'category_id');
+    }
+
+}

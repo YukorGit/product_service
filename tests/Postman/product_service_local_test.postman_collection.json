@@ -1,0 +1,280 @@
+{
+	"info": {
+		"_postman_id": "eb5129c9-c069-4ded-b9dc-7cc331cad6e6",
+		"name": "Local test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39991859"
+	},
+	"item": [
+		{
+			"name": "Base",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response has correct JSON structure\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(jsonData).to.have.property('data');\r",
+							"    \r",
+							"    if (jsonData.data.length > 0) {\r",
+							"        var product = jsonData.data[0];\r",
+							"        \r",
+							"        // Keys\r",
+							"        pm.expect(product).to.have.property('id');\r",
+							"        pm.expect(product).to.have.property('name');\r",
+							"        pm.expect(Number(product.price)).to.be.a('number'); \r",
+							"\r",
+							"        // In stock\r",
+							"        pm.expect(product).to.have.property('in_stock');\r",
+							"        pm.expect(product.in_stock).to.be.a('boolean');\r",
+							"        \r",
+							"        // Category\r",
+							"        pm.expect(product).to.have.property('category');\r",
+							"        pm.expect(product.category).to.have.property('name');\r",
+							"        \r",
+							"        // Enum values check\r",
+							"        var allowedCategories = ['Electronics', 'Books', 'Clothing', 'Toys', 'Furniture'];\r",
+							"        pm.expect(allowedCategories).to.include(product.category.name);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "foo1",
+							"value": "bar1",
+							"type": "text"
+						},
+						{
+							"key": "foo2",
+							"value": "bar2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/products?per_page=5",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "per_page",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filtered: price, category, in stock",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"All items match filter criteria\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var products = jsonData.data;\r",
+							"    var targetCatId = parseInt(pm.environment.get(\"valid_category_id\"));\r",
+							"\r",
+							"    products.forEach(function(product) {\r",
+							"        // Check IDs\r",
+							"        pm.expect(product.category.id).to.eql(targetCatId);\r",
+							"        \r",
+							"        // Price\r",
+							"        pm.expect(product.price).to.be.at.least(10);\r",
+							"        pm.expect(product.price).to.be.at.most(500);\r",
+							"        \r",
+							"        // can_buy\r",
+							"        // Если цена > 0 и in_stock=true, то can_buy должно быть true\r",
+							"        pm.expect(product.can_buy).to.be.true;\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/products?category_id={{valid_category_id}}&price_from=10&price_to=500&in_stock=1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "category_id",
+							"value": "{{valid_category_id}}"
+						},
+						{
+							"key": "price_from",
+							"value": "10"
+						},
+						{
+							"key": "price_to",
+							"value": "500"
+						},
+						{
+							"key": "in_stock",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sort by price",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Items are sorted by price DESC\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var products = jsonData.data;\r",
+							"    \r",
+							"    for (var i = 0; i < products.length - 1; i++) {\r",
+							"        var currentPrice = products[i].price;\r",
+							"        var nextPrice = products[i+1].price;\r",
+							"        \r",
+							"        pm.expect(currentPrice).to.be.at.least(nextPrice);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/products?sort=price_desc&per_page=10&in_stock=1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "sort",
+							"value": "price_desc"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						},
+						{
+							"key": "in_stock",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Exception",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 422 Unprocessable Entity\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Contains validation error for category_id\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('errors');\r",
+							"    pm.expect(jsonData.errors).to.have.property('category_id');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/products?category_id={{invalid_category_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "category_id",
+							"value": "{{invalid_category_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					"pm.request.headers.add({key: 'Accept', value: 'application/json'});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

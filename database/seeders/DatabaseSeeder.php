@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Domain\Category\Enums\CategoryName;
+use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,9 +19,25 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        /*User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-        ]);
+        ]);*/
+
+        $catIds = [];
+
+        foreach (CategoryName::cases() as $categoryEnum) {
+            $catIds[] = DB::table('categories')->insertGetId([
+                'name' => $categoryEnum->value,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        foreach ($catIds as $catId) {
+            ProductModel::factory()
+                ->count(60) // По 60 на категорию, 300 всего
+                ->create(['category_id' => $catId]);
+        }
     }
 }
