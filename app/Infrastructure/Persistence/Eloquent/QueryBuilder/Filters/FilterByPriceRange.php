@@ -2,25 +2,21 @@
 
 namespace App\Infrastructure\Persistence\Eloquent\QueryBuilder\Filters;
 
-use App\Domain\Product\DTO\ProductSearchCriteriaDto;
+use App\Infrastructure\Persistence\Eloquent\QueryBuilder\ProductSearchContext;
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
 
 class FilterByPriceRange
 {
-    public function __construct(protected ProductSearchCriteriaDto $criteria)
-    {
-    }
 
-    public function handle(Builder $builder, Closure $next)
+    public function handle(ProductSearchContext $context, Closure $next)
     {
-        if ($this->criteria->priceFrom) {
-            $builder->where('price', '>=', $this->criteria->priceFrom);
+        if ($context->criteria->priceFrom) {
+            $context->builder->where('price', '>=', $context->criteria->priceFrom);
         }
-        if ($this->criteria->priceTo) {
-            $builder->where('price', '<=', $this->criteria->priceTo);
+        if ($context->criteria->priceTo) {
+            $context->builder->where('price', '<=', $context->criteria->priceTo);
         }
 
-        return $next($builder);
+        return $next($context);
     }
 }

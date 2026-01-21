@@ -2,22 +2,18 @@
 
 namespace App\Infrastructure\Persistence\Eloquent\QueryBuilder\Filters;
 
-use App\Domain\Product\DTO\ProductSearchCriteriaDto;
-use Illuminate\Database\Eloquent\Builder;
+use App\Infrastructure\Persistence\Eloquent\QueryBuilder\ProductSearchContext;
 use Closure;
 
 class FilterByStock
 {
-    public function __construct(
-        protected ProductSearchCriteriaDto $criteria
-    ) {}
 
-    public function handle(Builder $builder, Closure $next)
+    public function handle(ProductSearchContext $context, Closure $next)
     {
-        if ($this->criteria->inStock !== null) {
-            $builder->where('in_stock', $this->criteria->inStock);
+        if ($context->criteria->inStock !== null) {
+            $context->builder->where('in_stock', $context->criteria->inStock);
         }
 
-        return $next($builder);
+        return $next($context);
     }
 }

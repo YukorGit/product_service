@@ -2,22 +2,17 @@
 
 namespace App\Infrastructure\Persistence\Eloquent\QueryBuilder\Filters;
 
-use App\Domain\Product\DTO\ProductSearchCriteriaDto;
-use Illuminate\Database\Eloquent\Builder;
+use App\Infrastructure\Persistence\Eloquent\QueryBuilder\ProductSearchContext;
 use Closure;
 
 class FilterByCategory
 {
-    public function __construct(
-        protected ProductSearchCriteriaDto $criteria
-    ) {}
-
-    public function handle(Builder $builder, Closure $next)
+    public function handle(ProductSearchContext $context, Closure $next)
     {
-        if ($this->criteria->categoryId) {
-            $builder->where('category_id', $this->criteria->categoryId);
+        if ($context->criteria->categoryId) {
+            $context->builder->where('category_id', $context->criteria->categoryId);
         }
 
-        return $next($builder);
+        return $next($context);
     }
 }
