@@ -30,7 +30,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
         $context = new ProductSearchContext($query, $criteria);
 
-        $query = Pipeline::send($context)
+        Pipeline::send($context)
             ->through($this->filters)
             ->thenReturn();
 
