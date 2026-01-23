@@ -2,20 +2,17 @@
 
 namespace App\Infrastructure\Persistence\Eloquent\QueryBuilder\Filters;
 
-use App\Domain\Product\DTO\ProductSearchCriteriaDto;
+use App\Infrastructure\Persistence\Eloquent\QueryBuilder\ProductSearchContext;
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
 
 class FilterByName
 {
-    public function __construct(protected ProductSearchCriteriaDto $criteria) {}
-
-    public function handle(Builder $builder, Closure $next)
+    public function handle(ProductSearchContext $context, Closure $next)
     {
-        if ($this->criteria->search) {
-            $builder->where('name', 'like', '%' . $this->criteria->search . '%');
+        if ($context->criteria->search) {
+            $context->builder->where('name', 'like', '%' . $context->criteria->search . '%');
         }
 
-        return $next($builder);
+        return $next($context);
     }
 }

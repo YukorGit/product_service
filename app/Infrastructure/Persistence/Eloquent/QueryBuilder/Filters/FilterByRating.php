@@ -2,22 +2,17 @@
 
 namespace App\Infrastructure\Persistence\Eloquent\QueryBuilder\Filters;
 
-use App\Domain\Product\DTO\ProductSearchCriteriaDto;
-use Illuminate\Database\Eloquent\Builder;
+use App\Infrastructure\Persistence\Eloquent\QueryBuilder\ProductSearchContext;
 use Closure;
 
 class FilterByRating
 {
-    public function __construct(
-        protected ProductSearchCriteriaDto $criteria
-    ) {}
-
-    public function handle(Builder $builder, Closure $next)
+    public function handle(ProductSearchContext $context, Closure $next)
     {
-        if ($this->criteria->ratingFrom !== null) {
-            $builder->where('rating', '>=', $this->criteria->ratingFrom);
+        if ($context->criteria->ratingFrom !== null) {
+            $context->builder->where('rating', '>=', $context->criteria->ratingFrom);
         }
 
-        return $next($builder);
+        return $next($context);
     }
 }
