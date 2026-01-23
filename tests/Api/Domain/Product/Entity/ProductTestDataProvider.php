@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\Unit\Domain\Product\DataProviders;
+namespace Tests\Api\Domain\Product\Entity;
 
 use App\Domain\Category\Entity\Category;
 use App\Domain\Category\Enums\CategoryName;
 use App\Domain\Product\Entity\Product;
 
-class ProductAvailabilityDataProvider
+class ProductTestDataProvider
 {
     /**
      * Возвращает набор сценариев: [Product entity, expectedResult]
