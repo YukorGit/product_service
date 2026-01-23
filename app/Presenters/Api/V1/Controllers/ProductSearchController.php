@@ -6,6 +6,7 @@ use App\Application\Product\GetProductListService;
 use App\Infrastructure\Framework\Http\Controllers\Controller;
 use App\Presenters\Api\V1\Requests\ProductSearchRequest;
 use App\Presenters\Api\V1\Resources\ProductResource;
+use Illuminate\Pagination\LengthAwarePaginator;
 use OpenApi\Attributes as OA;
 
 class ProductSearchController extends Controller
@@ -132,8 +133,19 @@ class ProductSearchController extends Controller
     )]
     public function index(ProductSearchRequest $request, GetProductListService $service): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $products = $service->execute($request->toDto());
+        $result = $service->execute($request->toDto());
 
-        return ProductResource::collection($products);
+        $laravelPaginator = new LengthAwarePaginator(
+            $result->items->all(),
+            $result->total,
+            $result->perPage,
+            $result->currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        return ProductResource::collection($laravelPaginator);
     }
 }

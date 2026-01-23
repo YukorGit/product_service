@@ -4,7 +4,7 @@ namespace App\Application\Product;
 
 use App\Domain\Product\DTO\ProductSearchCriteriaDto;
 use App\Domain\Product\Repository\ProductRepositoryInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Domain\Shared\DTO\PaginatedResult;
 
 class GetProductListService
 {
@@ -12,7 +12,7 @@ class GetProductListService
         protected ProductRepositoryInterface $repository
     ) {}
 
-    public function execute(ProductSearchCriteriaDto $criteria): LengthAwarePaginator
+    public function execute(ProductSearchCriteriaDto $criteria): PaginatedResult
     {
         return $this->repository->search($criteria);
     }

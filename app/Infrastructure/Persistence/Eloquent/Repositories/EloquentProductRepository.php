@@ -4,42 +4,40 @@ namespace App\Infrastructure\Persistence\Eloquent\Repositories;
 
 use App\Domain\Product\DTO\ProductSearchCriteriaDto;
 use App\Domain\Product\Repository\ProductRepositoryInterface;
+use App\Domain\Shared\DTO\PaginatedResult;
 use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use App\Infrastructure\Persistence\Eloquent\Mappers\ProductMapper;
-use App\Infrastructure\Persistence\Eloquent\QueryBuilder\ProductSearchContext;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Pipeline;
+use App\Infrastructure\Persistence\Eloquent\QueryBuilder\EloquentProductQueryBuilder;
 
 class EloquentProductRepository implements ProductRepositoryInterface
 {
-    protected array $filters;
+    public function __construct(
+        protected ProductModel $model,
+        protected EloquentProductQueryBuilder $queryBuilder
+    ) {}
 
-    public function __construct()
+    public function search(ProductSearchCriteriaDto $criteria): PaginatedResult
     {
-        $this->filters = app('product.search.filters');
+        $query = $this->queryBuilder->build($this->model, $criteria);
+
+        return $this->paginateAndMap($query, $criteria);
     }
 
-    public function search(ProductSearchCriteriaDto $criteria): LengthAwarePaginator
+    protected function paginateAndMap($query, ProductSearchCriteriaDto $criteria): PaginatedResult
     {
-        $query = ProductModel::query()->with('category');
-
-        $context = new ProductSearchContext($query, $criteria);
-
-        Pipeline::send($context)
-            ->through($this->filters)
-            ->thenReturn();
-
-        $query->orderBy($criteria->sortBy, $criteria->sortDirection);
-
-        $paginator = $query->paginate(
+        $eloquentPaginator = $query->paginate(
             perPage: $criteria->perPage,
             page: $criteria->page
         );
 
-        $paginator->setCollection(
-            $paginator->getCollection()->map(fn ($model) => ProductMapper::toEntity($model))
-        );
+        $domainCollection = ProductMapper::toCollection($eloquentPaginator->items());
 
-        return $paginator;
+        return new PaginatedResult(
+            items: $domainCollection,
+            total: $eloquentPaginator->total(),
+            currentPage: $eloquentPaginator->currentPage(),
+            lastPage: $eloquentPaginator->lastPage(),
+            perPage: $eloquentPaginator->perPage()
+        );
     }
 }
